@@ -1,0 +1,49 @@
+{
+  "$schema": "https://raw.githubusercontent.com/vicinaehq/vicinae/refs/heads/main/extra/schemas/extension.json",
+  "name": "wireguard-nm",
+  "title": "WireGuard (NetworkManager)",
+  "description": "Connect and disconnect WireGuard VPN tunnels managed by NetworkManager, from anywhere on Linux.",
+  "icon": "extension-icon.png",
+  "author": "sph33r",
+  "license": "MIT",
+  "categories": ["System", "Security"],
+  "commands": [
+    {
+      "name": "wireguard",
+      "title": "WireGuard Connections",
+      "subtitle": "WireGuard",
+      "description": "List WireGuard tunnels and connect or disconnect them.",
+      "mode": "view"
+    },
+    {
+      "name": "toggle-wireguard",
+      "title": "Toggle WireGuard",
+      "subtitle": "WireGuard",
+      "description": "Instantly connect or disconnect a WireGuard tunnel without opening a list.",
+      "mode": "no-view",
+      "preferences": [
+        {
+          "name": "connectionName",
+          "type": "textfield",
+          "title": "Connection Name",
+          "description": "Name of the NetworkManager WireGuard connection to toggle, as shown by `nmcli connection show`. Leave empty to auto-select (the active tunnel, or the only configured one).",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "dependencies": {
+    "@vicinae/api": "^0.28.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.8",
+    "@types/react": "^19.0.10",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "build": "vici build",
+    "dev": "vici develop",
+    "lint": "vici lint",
+    "typecheck": "tsc --noEmit"
+  }
+}
