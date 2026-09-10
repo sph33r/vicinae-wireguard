@@ -36,6 +36,14 @@ export async function connectionDown(name: string): Promise<void> {
   await nmcli(["connection", "down", name]);
 }
 
+export async function importWireGuardConfig(path: string): Promise<void> {
+  await nmcli(["connection", "import", "type", "wireguard", "file", path]);
+}
+
+export async function deleteConnection(uuid: string): Promise<void> {
+  await nmcli(["connection", "delete", uuid]);
+}
+
 export function resolveTargetConnection(
   connections: WireGuardConnection[],
   connectionName?: string,

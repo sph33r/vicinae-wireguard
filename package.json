@@ -30,6 +30,13 @@
           "required": false
         }
       ]
+    },
+    {
+      "name": "import-wireguard",
+      "title": "Import WireGuard Tunnel",
+      "subtitle": "WireGuard",
+      "description": "Import a WireGuard .conf file into NetworkManager.",
+      "mode": "view"
     }
   ],
   "dependencies": {

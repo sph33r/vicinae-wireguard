@@ -1,6 +1,6 @@
-import { Action, ActionPanel, Color, Icon, List, showToast, Toast } from "@vicinae/api";
+import { Action, ActionPanel, Alert, Color, confirmAlert, Icon, List, showToast, Toast } from "@vicinae/api";
 import { useCallback, useEffect, useState } from "react";
-import { formatError, listWireGuardConnections, toggleConnection, WireGuardConnection } from "./nmcli";
+import { deleteConnection, formatError, listWireGuardConnections, toggleConnection, WireGuardConnection } from "./nmcli";
 
 export default function Command() {
   const [connections, setConnections] = useState<WireGuardConnection[]>([]);
@@ -46,6 +46,27 @@ export default function Command() {
     }
   };
 
+  const remove = async (connection: WireGuardConnection) => {
+    const confirmed = await confirmAlert({
+      title: `Delete "${connection.name}"?`,
+      message: "This removes the connection from NetworkManager. This cannot be undone.",
+      primaryAction: { title: "Delete", style: Alert.ActionStyle.Destructive },
+    });
+    if (!confirmed) return;
+
+    try {
+      await deleteConnection(connection.uuid);
+      await showToast({ style: Toast.Style.Success, title: `Deleted ${connection.name}` });
+      await refresh();
+    } catch (error) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: `Failed to delete ${connection.name}`,
+        message: formatError(error),
+      });
+    }
+  };
+
   return (
     <List isLoading={isLoading} searchBarPlaceholder="Search WireGuard connections...">
       <List.EmptyView
@@ -77,6 +98,13 @@ export default function Command() {
                   icon={Icon.ArrowClockwise}
                   shortcut={{ modifiers: ["ctrl"], key: "r" }}
                   onAction={refresh}
+                />
+                <Action
+                  title="Delete Connection"
+                  icon={Icon.Trash}
+                  style="destructive"
+                  shortcut={{ modifiers: ["ctrl"], key: "x" }}
+                  onAction={() => remove(connection)}
                 />
               </ActionPanel>
             }
