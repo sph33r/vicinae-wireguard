@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Color, Icon, List, showToast, Toast } from "@vicinae/api";
 import { useCallback, useEffect, useState } from "react";
-import { connectionDown, connectionUp, listWireGuardConnections, WireGuardConnection } from "./nmcli";
+import { formatError, listWireGuardConnections, toggleConnection, WireGuardConnection } from "./nmcli";
 
 export default function Command() {
   const [connections, setConnections] = useState<WireGuardConnection[]>([]);
@@ -14,7 +14,7 @@ export default function Command() {
       await showToast({
         style: Toast.Style.Failure,
         title: "Failed to list WireGuard connections",
-        message: error instanceof Error ? error.message : String(error),
+        message: formatError(error),
       });
     } finally {
       setIsLoading(false);
@@ -26,23 +26,23 @@ export default function Command() {
   }, [refresh]);
 
   const toggle = async (connection: WireGuardConnection) => {
+    const verb = connection.active
+      ? { ing: "Disconnecting", done: "Disconnected", fail: "disconnect" }
+      : { ing: "Connecting", done: "Connected", fail: "connect" };
+
     const toast = await showToast({
       style: Toast.Style.Animated,
-      title: connection.active ? `Disconnecting ${connection.name}` : `Connecting ${connection.name}`,
+      title: `${verb.ing} ${connection.name}`,
     });
     try {
-      if (connection.active) {
-        await connectionDown(connection.name);
-      } else {
-        await connectionUp(connection.name);
-      }
+      await toggleConnection(connection);
       toast.style = Toast.Style.Success;
-      toast.title = connection.active ? `Disconnected ${connection.name}` : `Connected ${connection.name}`;
+      toast.title = `${verb.done} ${connection.name}`;
       await refresh();
     } catch (error) {
       toast.style = Toast.Style.Failure;
-      toast.title = connection.active ? `Failed to disconnect ${connection.name}` : `Failed to connect ${connection.name}`;
-      toast.message = error instanceof Error ? error.message : String(error);
+      toast.title = `Failed to ${verb.fail} ${connection.name}`;
+      toast.message = formatError(error);
     }
   };
 
@@ -53,40 +53,36 @@ export default function Command() {
         description="Add a WireGuard connection to NetworkManager (nmcli connection import type wireguard file <config>) to see it here."
         icon={Icon.Shield01}
       />
-      {connections.map((connection) => (
-        <List.Item
-          key={connection.uuid}
-          title={connection.name}
-          icon={{
-            source: connection.active ? Icon.Plug : Icon.WifiDisabled,
-            tintColor: connection.active ? Color.Green : Color.SecondaryText,
-          }}
-          accessories={[
-            {
-              tag: {
-                value: connection.active ? "Connected" : "Disconnected",
-                color: connection.active ? Color.Green : Color.SecondaryText,
-              },
-            },
-          ]}
-          actions={
-            <ActionPanel>
-              <Action
-                title={connection.active ? "Disconnect" : "Connect"}
-                icon={connection.active ? Icon.WifiDisabled : Icon.Plug}
-                style={connection.active ? "destructive" : "regular"}
-                onAction={() => toggle(connection)}
-              />
-              <Action
-                title="Refresh"
-                icon={Icon.ArrowClockwise}
-                shortcut={{ modifiers: ["ctrl"], key: "r" }}
-                onAction={refresh}
-              />
-            </ActionPanel>
-          }
-        />
-      ))}
+      {connections.map((connection) => {
+        const status = connection.active
+          ? { icon: Icon.Plug, color: Color.Green, label: "Connected" }
+          : { icon: Icon.WifiDisabled, color: Color.SecondaryText, label: "Disconnected" };
+
+        return (
+          <List.Item
+            key={connection.uuid}
+            title={connection.name}
+            icon={{ source: status.icon, tintColor: status.color }}
+            accessories={[{ tag: { value: status.label, color: status.color } }]}
+            actions={
+              <ActionPanel>
+                <Action
+                  title={connection.active ? "Disconnect" : "Connect"}
+                  icon={connection.active ? Icon.WifiDisabled : Icon.Plug}
+                  style={connection.active ? "destructive" : "regular"}
+                  onAction={() => toggle(connection)}
+                />
+                <Action
+                  title="Refresh"
+                  icon={Icon.ArrowClockwise}
+                  shortcut={{ modifiers: ["ctrl"], key: "r" }}
+                  onAction={refresh}
+                />
+              </ActionPanel>
+            }
+          />
+        );
+      })}
     </List>
   );
 }

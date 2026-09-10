@@ -1,5 +1,5 @@
 import { getPreferenceValues, showHUD } from "@vicinae/api";
-import { connectionDown, connectionUp, listWireGuardConnections } from "./nmcli";
+import { formatError, listWireGuardConnections, resolveTargetConnection, toggleConnection } from "./nmcli";
 
 interface Preferences {
   connectionName?: string;
@@ -12,7 +12,7 @@ export default async function Command() {
   try {
     connections = await listWireGuardConnections();
   } catch (error) {
-    await showHUD(`Failed to query NetworkManager: ${error instanceof Error ? error.message : String(error)}`);
+    await showHUD(`Failed to query NetworkManager: ${formatError(error)}`);
     return;
   }
 
@@ -21,9 +21,7 @@ export default async function Command() {
     return;
   }
 
-  const target = connectionName
-    ? connections.find((connection) => connection.name === connectionName)
-    : (connections.find((connection) => connection.active) ?? (connections.length === 1 ? connections[0] : undefined));
+  const target = resolveTargetConnection(connections, connectionName);
 
   if (!target) {
     await showHUD(
@@ -35,14 +33,10 @@ export default async function Command() {
   }
 
   try {
-    if (target.active) {
-      await connectionDown(target.name);
-      await showHUD(`Disconnected ${target.name}`);
-    } else {
-      await connectionUp(target.name);
-      await showHUD(`Connected ${target.name}`);
-    }
+    const wasActive = target.active;
+    await toggleConnection(target);
+    await showHUD(wasActive ? `Disconnected ${target.name}` : `Connected ${target.name}`);
   } catch (error) {
-    await showHUD(`Failed to toggle ${target.name}: ${error instanceof Error ? error.message : String(error)}`);
+    await showHUD(`Failed to toggle ${target.name}: ${formatError(error)}`);
   }
 }
