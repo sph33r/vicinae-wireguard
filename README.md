@@ -11,6 +11,7 @@ This extension does not manage tunnels configured purely through `wg-quick` /
 ## AI Disclosure
 
 This was created with the help of Claude Code. If that makes you angry, so be it.
+
 I built this for me to make my life easier; I'm just sharing it in case others
 need something like it.
 
