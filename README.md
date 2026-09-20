@@ -1,23 +1,35 @@
 # WireGuard (NetworkManager) for Vicinae
 
-Manage WireGuard VPN tunnels from [Vicinae](https://docs.vicinae.com), backed by
-[NetworkManager](https://networkmanager.dev/) via `nmcli`. Works on any Linux
-desktop environment that uses NetworkManager for WireGuard (GNOME, KDE, Sway,
-Hyprland, etc.) — nothing here is DE-specific.
-
+Manage WireGuard VPN tunnels from [Vicinae](https://vicinae.com) using 
+NetworkManager via `nmcli`. Works on any Linuxdesktop environment that 
+uses NetworkManager for WireGuard (GNOME, KDE, Sway, Hyprland, etc.).
+ 
 This extension does not manage tunnels configured purely through `wg-quick` /
 `systemd-networkd` outside of NetworkManager.
 
 ## AI Disclosure
 
-This was created with the help of Claude Code. If that makes you angry, so be it.
+This was created with the help of Claude Code. The code was reviewed by me as well
+as different agents for code, security, and simplicity.
 
-I built this for me to make my life easier; I'm just sharing it in case others
-need something like it.
+This just interfaces with nmcli as your user, it does not use root or any external
+commands, it's the same as if you were running the nmcli command yourself.
+
+## Reasoning For Creation
+
+I was dabbling with Sway and didn't want to manage my Wireguard connection via the CLI.
+In KDE you can manage it directly in the Network settings, Gnome has a decent
+extension for managing Wireguard, but I want to use the same method regardless
+of the DE/WM I'm using.
+
+Vicinae is a great launcher and I use it in all my Linux desktops so I made this.
+
+Windows and MacOS have their own apps and ways to trigger tunnels, I'm not catering
+to them here, this is Linux only.
 
 ## Requirements
 
-- [Vicinae](https://docs.vicinae.com) installed and running.
+- [Vicinae](https://vicinae.com) installed and running.
 - `nmcli` on your `PATH` (part of NetworkManager, installed by default on most
   distros).
 - At least one WireGuard tunnel added as a NetworkManager connection. Use the
@@ -58,6 +70,21 @@ so it always targets that connection.
 
 A form for picking a `.conf` file and importing it into NetworkManager as a
 new WireGuard connection.
+
+## Installation
+
+I have not published this to the Vicinea extension store yet. I may never do that, 
+I'm still weirded out sharing code that I agentically made for myself.
+
+To install, you need to follow the development instructions below. You really only need
+to run the following:
+
+```sh
+npm install
+npm run build
+```
+
+But you may want to run the other parts if it makes you feel better.
 
 ## Development
 
