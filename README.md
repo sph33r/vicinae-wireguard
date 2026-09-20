@@ -1,8 +1,11 @@
 # WireGuard (NetworkManager) for Vicinae
 
+**Linux Only**
+
 Manage WireGuard VPN tunnels from [Vicinae](https://vicinae.com) using 
-NetworkManager via `nmcli`. Works on any Linuxdesktop environment that 
-uses NetworkManager for WireGuard (GNOME, KDE, Sway, Hyprland, etc.).
+NetworkManager via `nmcli`. Works on any Linux desktop environment or 
+window manager that uses NetworkManager for WireGuard 
+(GNOME, KDE, Sway, Hyprland, etc.).
  
 This extension does not manage tunnels configured purely through `wg-quick` /
 `systemd-networkd` outside of NetworkManager.
